@@ -20,8 +20,7 @@ headers = {
                   " Chrome/83.0.4103.61 Safari/537.36"
 }
 
-# html = requests.get("https://steamcommunity.com/market/listings/440/Strange%20Panic%20Attack",
-#                     headers=headers).text
+dollar_rate = 27.70
 
 
 def get_buy_order_summary(url):
@@ -41,25 +40,3 @@ def get_buy_order_summary(url):
     buy_order_summary = data["buy_order_summary"][110:-7]
 
     return buy_order_summary
-# count = 0
-# f = 'Запросов на покупку: <span class="market_commodity_orders_header_promote">710</span><br>Начальная цена: <span'
-# print(len(f))
-# def parse_item_name_id(html_doc):
-#     soup = BeautifulSoup(html_doc, 'html.parser')
-#
-#     a = str(soup.find_all('script')[-1])[31:]
-#     print(a)
-#     return None
-#     # item_nameid = parse_item_name_id_from_script(last_script)
-# print(str(scrept))
-# b = str(scrept)[31:]
-# script = b[:-9]
-
-# if a == scrept:
-#     print("cyc")
-# utem = parse_item_name_id_from_script(script)
-# print(utem)
-# parse_item_name_id_from_script(html)
-
-summaries = get_buy_order_summary("https://steamcommunity.com/market/listings/440/Strange%20Panic%20Attack")
-print(summaries)
