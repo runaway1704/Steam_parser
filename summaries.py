@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
+import re
 
 
 def parse_item_name_id_from_script(last_script):
@@ -31,12 +32,13 @@ def get_buy_order_summary(url):
     name_id = parse_item_name_id_from_script(last_script=script)
 
     data = requests.get(f"https://steamcommunity.com/market/"
-                                    "itemordershistogram?"
-                                    "country=UA"
-                                    "&language=russian"
-                                    "&currency=18"
-                                    f"&item_nameid={name_id}&two_factor=0").json()
-
-    buy_order_summary = data["buy_order_summary"][110:-7]
-
-    return buy_order_summary
+                        "itemordershistogram?"
+                        "country=UA"
+                        "&language=russian"
+                        "&currency=18"
+                        f"&item_nameid={name_id}&two_factor=0").json()
+    pattern = re.compile(r'[0-9]+\.[0-9]+')
+    buy_order_summary = data["buy_order_summary"][110:-7].replace(",", ".")
+    price = float(pattern.findall(buy_order_summary)[0])
+    auto_buy_price = round(price / dollar_rate, 2)
+    return f"{auto_buy_price}$"
