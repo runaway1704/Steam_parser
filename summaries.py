@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 import re
+from const import HEADERS, DOLLAR_RATE
 
 
 def parse_item_name_id_from_script(last_script):
@@ -16,16 +17,8 @@ def parse_item_name_id_from_script(last_script):
     return item_nameid
 
 
-headers = {
-    'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"
-                  " Chrome/83.0.4103.61 Safari/537.36"
-}
-
-dollar_rate = 27.70
-
-
 def get_buy_order_summary(url):
-    html = requests.get(url, headers=headers).text
+    html = requests.get(url, headers=HEADERS).text
     soup = BeautifulSoup(html, 'html.parser')
     script = str(soup.find_all("script")[-1])[31:-9]
 
@@ -37,8 +30,19 @@ def get_buy_order_summary(url):
                         "&language=russian"
                         "&currency=18"
                         f"&item_nameid={name_id}&two_factor=0").json()
-    pattern = re.compile(r'[0-9]+\.[0-9]+')
-    buy_order_summary = data["buy_order_summary"][110:-7].replace(",", ".")
-    price = float(pattern.findall(buy_order_summary)[0])
-    auto_buy_price = round(price / dollar_rate, 2)
-    return f"{auto_buy_price}$"
+
+    buy_order_summary = data["buy_order_summary"]  # [110:-7]  # string with auto buy price data
+    if "," in buy_order_summary:
+        pattern = re.compile(r'[0-9]+\.[0-9]+')
+        buy_order_summary = buy_order_summary.replace(",", ".")
+        price = float(pattern.findall(buy_order_summary)[0])
+        auto_buy_price = round(price / DOLLAR_RATE, 2)  # convert into dollars
+
+        return f"{auto_buy_price}$"
+
+    else:
+        pattern = re.compile(r"[0-9]+")
+        price = float(int(pattern.findall(buy_order_summary)[0]))
+        auto_buy_price = round(price / DOLLAR_RATE, 2)
+
+        return f"{auto_buy_price}$"
