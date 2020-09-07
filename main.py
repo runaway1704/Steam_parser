@@ -60,7 +60,7 @@ def parse():
             html = get_html(url.format(i))
 
             if html.status_code == 200:
-                print(f"page {i} is processing")
+                print(f"page {i} is processing...")
                 items.extend(get_content(html.text))
 
         except Exception:
@@ -76,3 +76,4 @@ for item in items:
         for key, value in item.items():
             print(key + " -> " + value)
         print("---------------------------------------------" * 3)
+print(f"Returned {len(items)} items")
