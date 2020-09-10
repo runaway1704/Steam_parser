@@ -1,2 +1,2 @@
 # Steam_parser
-This script parse items in stean mp with their name, price, auto buy price
+This script parse items in steam mp with their name, price, auto buy price
