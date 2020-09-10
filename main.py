@@ -3,6 +3,11 @@ from bs4 import BeautifulSoup
 from summaries import get_buy_order_summary
 from const import HEADERS
 
+print("""You need to put url without %27#p_popular_desc
+For example:
+https://steamcommunity.com/market/search?appid=730""")
+
+
 url = 'https://steamcommunity.com/market/search?q=&category_440_Collection%5B%5D=any' \
       '&category_440_Type%5B%5D=any' \
       '&category_440_Exterior%5B%5D=tag_TFUI_InvTooltip_FieldTested' \
@@ -27,6 +32,10 @@ url = 'https://steamcommunity.com/market/search?q=&category_440_Collection%5B%5D
       '&category_440_Rarity%5B%5D=tag_Rarity_Legendary' \
       '&category_440_Rarity%5B%5D=tag_Rarity_Ancient' \
       '&appid=440%27#p{}_popular_desc'
+
+
+if not url.endswith("%27#p{}_popular_desc"):
+    url += "%27#p{}_popular_desc"
 
 
 def get_html(path):
@@ -76,4 +85,4 @@ for item in items:
         for key, value in item.items():
             print(key + " -> " + value)
         print("---------------------------------------------" * 3)
-print(f"Returned {len(items)} items")
+print(f"Got {len(items)} items")
