@@ -1,7 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
 
-
 print("""<------------------------------------------------------------------------------------->
 You need to put url without %27#p_popular_desc
 For example:

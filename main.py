@@ -6,7 +6,6 @@ from summaries import get_buy_order_summary
 from const import HEADERS, URL
 import csv
 
-
 if not URL.endswith("%27#p{}_popular_desc"):
     URL += "%27#p{}_popular_desc"
 
