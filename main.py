@@ -1,12 +1,16 @@
+import time
+import re
 import requests
 from bs4 import BeautifulSoup
 from summaries import get_buy_order_summary
 from const import HEADERS
+import csv
 
-print("""You need to put url without %27#p_popular_desc
+print("""<------------------------------------------------------------------------------------->
+You need to put url without %27#p_popular_desc
 For example:
-https://steamcommunity.com/market/search?appid=730""")
-
+https://steamcommunity.com/market/search?appid=730
+<------------------------------------------------------------------------------------->""")
 
 url = 'https://steamcommunity.com/market/search?q=&category_440_Collection%5B%5D=any' \
       '&category_440_Type%5B%5D=any' \
@@ -31,11 +35,12 @@ url = 'https://steamcommunity.com/market/search?q=&category_440_Collection%5B%5D
       '&category_440_Rarity%5B%5D=tag_Rarity_Uncommon' \
       '&category_440_Rarity%5B%5D=tag_Rarity_Legendary' \
       '&category_440_Rarity%5B%5D=tag_Rarity_Ancient' \
-      '&appid=440%27#p{}_popular_desc'
-
+      '&appid=440'
 
 if not url.endswith("%27#p{}_popular_desc"):
     url += "%27#p{}_popular_desc"
+
+name_for_csv = str(time.time())
 
 
 def get_html(path):
@@ -57,32 +62,70 @@ def get_content(html):
             "url": str(item.get("href")),
             "auto buy price": get_buy_order_summary(str(item.get("href")))
         })
+        # time.sleep(10)
     return container
 
 
-def parse():
-    items = []
+def save_into_csv(list_of_items):
+    with open(f"{name_for_csv}.csv", "a", newline="") as file:
+        writer = csv.writer(file, delimiter=";")
+        writer.writerow(["Name", "Price", "Url", "Auto buy price"])
+        for item in list_of_items:
+            writer.writerow([item["name"], item["price"], item["url"], item["auto buy price"]])
+        return
 
-    for i in range(1, 10):
 
+def get_all_pages(html_page):
+    soup = BeautifulSoup(html_page, "html.parser")
+    all_pages = soup.find_all("div", class_="market_paging_summary ellipsis")[0].get_text(strip=True)
+    pattern = re.compile(r"[0-9]+")
+    if "," in all_pages:
+        pages_string = all_pages.replace(",", "")
+        last_page = pattern.findall(pages_string)
+        return last_page[-1]
+    else:
+        last_page = pattern.findall(all_pages)
+        return last_page[-1]
+
+
+def parse(from_page=1, list_of_items=None):  # from_page=1, last page=100
+
+    items_from_all_pages = []
+    if list_of_items is not None:
+        items_from_all_pages.extend(list_of_items)
+
+    html_page = get_html(url.format(1))
+    if html_page.status_code == 200:
+        last_page = int(get_all_pages(html_page.text)) // 10 + 1
+    else:
+        print("""Try later
+        """)
+        return
+
+    for i in range(from_page, last_page + 1):
         try:
             html = get_html(url.format(i))
-
             if html.status_code == 200:
-                print(f"page {i} is processing...")
-                items.extend(get_content(html.text))
+                print(f"page {i} of {last_page} is processing...")
+                items_from_all_pages.extend(get_content(html.text))
 
         except Exception:
 
-            return items
+            time.sleep(300)
+            return parse(from_page=i, list_of_items=items_from_all_pages)
 
-    return items
+    save_into_csv(items_from_all_pages)
+    return
 
 
-items = parse()
-for item in items:
-    if not any(i in item["name"] for i in not_needed_items):
-        for key, value in item.items():
-            print(key + " -> " + value)
-        print("---------------------------------------------" * 3)
-print(f"Got {len(items)} items")
+parse()
+
+"""осталось протестить как меньше времени можно юзать"""
+
+# items = parse()
+# save_into_csv(items)
+# for item in items:
+#     if not any(i in item["name"] for i in not_needed_items):
+#         for key, value in item.items():
+#             print(key + " -> " + value)
+#         print("---------------------------------------------" * 3)
