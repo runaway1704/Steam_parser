@@ -24,10 +24,11 @@ def get_content(html):
     soup = BeautifulSoup(html, "html.parser")
     items = soup.find_all("a", class_="market_listing_row_link")  # all "a" elements
     container = []
+    pattern = re.compile(r'[0-9]+\.[0-9]+')
     for item in items:
         container.append({
             "name": item.find("span", class_="market_listing_item_name").get_text(strip=True),
-            "price": item.find("span", class_="market_table_value normal_price").get_text(strip=True),
+            "price": pattern.findall(item.find("span", class_="market_table_value normal_price").get_text(strip=True).replace(',', ''))[0],
             "url": str(item.get("href")),
             "auto buy price": get_buy_order_summary(str(item.get("href")))
         })
