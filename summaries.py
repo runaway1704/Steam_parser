@@ -34,7 +34,7 @@ def get_buy_order_summary(url):
     buy_order_summary = data["buy_order_summary"]  # [110:-7]  # string with auto buy price data
     if "," in buy_order_summary:
         pattern = re.compile(r'[0-9]+\.[0-9]+')
-        buy_order_summary = buy_order_summary.replace(",", ".")
+        buy_order_summary = buy_order_summary.replace(",", ".").replace(" ", "")
         price = float(pattern.findall(buy_order_summary)[0])
         auto_buy_price = round(price / DOLLAR_RATE, 2)  # convert into dollars
 
