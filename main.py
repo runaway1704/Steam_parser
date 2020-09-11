@@ -12,35 +12,36 @@ For example:
 https://steamcommunity.com/market/search?appid=730
 <------------------------------------------------------------------------------------->""")
 
-url = 'https://steamcommunity.com/market/search?q=&category_440_Collection%5B%5D=any' \
-      '&category_440_Type%5B%5D=any' \
-      '&category_440_Exterior%5B%5D=tag_TFUI_InvTooltip_FieldTested' \
-      '&category_440_Exterior%5B%5D=tag_TFUI_InvTooltip_WellWorn' \
-      '&category_440_Exterior%5B%5D=tag_TFUI_InvTooltip_MinimalWear' \
-      '&category_440_Exterior%5B%5D=tag_TFUI_InvTooltip_FactoryNew' \
-      '&category_440_Exterior%5B%5D=tag_TFUI_InvTooltip_BattleScared' \
-      '&category_440_Quality%5B%5D=tag_Unique' \
-      '&category_440_Quality%5B%5D=tag_paintkitweapon' \
-      '&category_440_Quality%5B%5D=tag_strange' \
-      '&category_440_Quality%5B%5D=tag_vintage' \
-      '&category_440_Quality%5B%5D=tag_rarity1' \
-      '&category_440_Quality%5B%5D=tag_rarity4' \
-      '&category_440_Quality%5B%5D=tag_haunted' \
-      '&category_440_Quality%5B%5D=tag_collectors' \
-      '&category_440_Quality%5B%5D=tag_selfmade' \
-      '&category_440_Quality%5B%5D=tag_Normal' \
-      '&category_440_Rarity%5B%5D=tag_Rarity_Rare' \
-      '&category_440_Rarity%5B%5D=tag_Rarity_Common' \
-      '&category_440_Rarity%5B%5D=tag_Rarity_Mythical' \
-      '&category_440_Rarity%5B%5D=tag_Rarity_Uncommon' \
-      '&category_440_Rarity%5B%5D=tag_Rarity_Legendary' \
-      '&category_440_Rarity%5B%5D=tag_Rarity_Ancient' \
-      '&appid=440'
-
+# url = 'https://steamcommunity.com/market/search?q=&category_440_Collection%5B%5D=any' \
+#       '&category_440_Type%5B%5D=any' \
+#       '&category_440_Exterior%5B%5D=tag_TFUI_InvTooltip_FieldTested' \
+#       '&category_440_Exterior%5B%5D=tag_TFUI_InvTooltip_WellWorn' \
+#       '&category_440_Exterior%5B%5D=tag_TFUI_InvTooltip_MinimalWear' \
+#       '&category_440_Exterior%5B%5D=tag_TFUI_InvTooltip_FactoryNew' \
+#       '&category_440_Exterior%5B%5D=tag_TFUI_InvTooltip_BattleScared' \
+#       '&category_440_Quality%5B%5D=tag_Unique' \
+#       '&category_440_Quality%5B%5D=tag_paintkitweapon' \
+#       '&category_440_Quality%5B%5D=tag_strange' \
+#       '&category_440_Quality%5B%5D=tag_vintage' \
+#       '&category_440_Quality%5B%5D=tag_rarity1' \
+#       '&category_440_Quality%5B%5D=tag_rarity4' \
+#       '&category_440_Quality%5B%5D=tag_haunted' \
+#       '&category_440_Quality%5B%5D=tag_collectors' \
+#       '&category_440_Quality%5B%5D=tag_selfmade' \
+#       '&category_440_Quality%5B%5D=tag_Normal' \
+#       '&category_440_Rarity%5B%5D=tag_Rarity_Rare' \
+#       '&category_440_Rarity%5B%5D=tag_Rarity_Common' \
+#       '&category_440_Rarity%5B%5D=tag_Rarity_Mythical' \
+#       '&category_440_Rarity%5B%5D=tag_Rarity_Uncommon' \
+#       '&category_440_Rarity%5B%5D=tag_Rarity_Legendary' \
+#       '&category_440_Rarity%5B%5D=tag_Rarity_Ancient' \
+#       '&appid=440'
+url = "https://steamcommunity.com/market/search?q=&category_730_ItemSet%5B%5D=any&category_730_ProPlayer%5B%5D=any&category_730_StickerCapsule%5B%5D=any&category_730_TournamentTeam%5B%5D=any&category_730_Weapon%5B%5D=any&category_730_PatchCapsule%5B%5D=tag_crate_patch_pack01&category_730_PatchCapsule%5B%5D=tag_crate_patch_pack_hlalyx&appid=730"
 if not url.endswith("%27#p{}_popular_desc"):
     url += "%27#p{}_popular_desc"
 
-name_for_csv = str(time.time())
+name_for_csv = time.strftime("%d-%m-%Y %Hh %M minutes")
+# print(name_for_csv)
 
 
 def get_html(path):
@@ -70,6 +71,7 @@ def save_into_csv(list_of_items):
     with open(f"{name_for_csv}.csv", "a", newline="") as file:
         writer = csv.writer(file, delimiter=";")
         writer.writerow(["Name", "Price", "Url", "Auto buy price"])
+        # if not any(i in item["name"] for i in not_needed_items):
         for item in list_of_items:
             writer.writerow([item["name"], item["price"], item["url"], item["auto buy price"]])
         return
@@ -120,10 +122,7 @@ def parse(from_page=1, list_of_items=None):  # from_page=1, last page=100
 
 parse()
 
-"""осталось протестить как меньше времени можно юзать"""
 
-# items = parse()
-# save_into_csv(items)
 # for item in items:
 #     if not any(i in item["name"] for i in not_needed_items):
 #         for key, value in item.items():
