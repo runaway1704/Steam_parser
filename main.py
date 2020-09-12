@@ -28,7 +28,8 @@ def get_content(html):
     for item in items:
         container.append({
             "name": item.find("span", class_="market_listing_item_name").get_text(strip=True),
-            "price": str(pattern.findall(item.find("span", class_="market_table_value normal_price").get_text(strip=True).replace(',', ''))[0]),
+            "price": str(pattern.findall(
+                item.find("span", class_="market_table_value normal_price").get_text(strip=True).replace(',', ''))[0]),
             "url": str(item.get("href")),
             "auto buy price": get_buy_order_summary(str(item.get("href")))
         })
@@ -42,7 +43,9 @@ def save_into_csv(list_of_items):
         writer.writerow(["Name", "Price in $", "Url", "Auto buy price in $", "Profit"])
         # if not any(i in item["name"] for i in not_needed_items):
         for item in list_of_items:
-            writer.writerow([item["name"], item["price"] + "$", item["url"], item["auto buy price"] + "$", str(round((float(item['price']) / float(item["auto buy price"]) - 1) * 100, 2)) + "%"])  # float(item["auto buy price"] / float(item['price']))
+            writer.writerow([item["name"], item["price"] + "$", item["url"], item["auto buy price"] + "$", str(
+                round((float(item['price']) / float(item["auto buy price"]) - 1) * 100,
+                      2)) + "%"])  # float(item["auto buy price"] / float(item['price']))
         return
 
 
