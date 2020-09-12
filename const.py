@@ -29,4 +29,8 @@ HEADERS = {
 
 DOLLAR_RATE = get_dollar_rate()
 
-URL = input("Input url here -> ").strip()
+URL = input("Input url here -> ")
+
+FROM_PAGE = input(
+    "Select the page from which you would like to start scraping "
+    "(if you need to start from the first page, leave the line blank) -> ").strip()

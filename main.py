@@ -3,8 +3,13 @@ import re
 import requests
 from bs4 import BeautifulSoup
 from summaries import get_buy_order_summary
-from const import HEADERS, URL
+from const import HEADERS, URL, FROM_PAGE
 import csv
+
+if not FROM_PAGE:
+    FROM_PAGE = 1
+else:
+    FROM_PAGE = int(FROM_PAGE)
 
 if not URL.endswith("%27#p{}_popular_desc"):
     URL += "%27#p{}_popular_desc"
@@ -89,12 +94,17 @@ def parse(from_page=1, list_of_items=None):  # from_page=1, last page=100
 
         save_into_csv(items_from_all_pages)
         return
+
     except KeyboardInterrupt:
         save_into_csv(items_from_all_pages)
         return
 
+    except Exception:
+        save_into_csv(items_from_all_pages)
+        return
 
-parse()
+
+parse(from_page=FROM_PAGE)
 
 # for item in items:
 #     if not any(i in item["name"] for i in not_needed_items):
