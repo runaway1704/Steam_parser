@@ -43,7 +43,7 @@ def get_content(html):
 
 
 def save_into_csv(list_of_items):
-    with open(f"{name_for_csv}.csv", "w", newline="") as file:
+    with open(f"{name_for_csv}.csv", "w", newline="", encoding='utf-8') as file:
         writer = csv.writer(file, delimiter=";")
         writer.writerow(["Name", "Price in $", "Url", "Auto buy price in $", "Profit"])
         # if not any(i in item["name"] for i in not_needed_items):
