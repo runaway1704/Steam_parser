@@ -6,6 +6,7 @@ You need to put url without %27#p_popular_desc
 For example:
 https://steamcommunity.com/market/search?appid=730
 <------------------------------------------------------------------------------------->""")
+print("To stop process press Ctrl + c")
 
 
 def get_dollar_rate():
