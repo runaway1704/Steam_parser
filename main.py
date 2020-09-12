@@ -70,15 +70,14 @@ def parse(from_page=1, list_of_items=None):  # from_page=1, last page=100
         if html_page.status_code == 200:
             last_page = int(get_all_pages(html_page.text)) // 10 + 1
         else:
-            print("""Try later
-            """)
+            print("Try later")
             return
 
         for i in range(from_page, last_page + 1):
             try:
                 html = get_html(URL.format(i))
                 if html.status_code == 200:
-                    print(f"page {i} of {last_page} is processing...")
+                    print(f"Page {i} of {last_page} is processing...")
                     items_from_all_pages.extend(get_content(html.text))
 
             except TypeError:
