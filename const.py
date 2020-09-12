@@ -27,4 +27,4 @@ HEADERS = {
 
 DOLLAR_RATE = get_dollar_rate()
 
-URL = input("Input url here -> ")
+URL = input("Input url here -> ").strip()

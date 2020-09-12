@@ -38,11 +38,11 @@ def get_buy_order_summary(url):
         price = float(pattern.findall(buy_order_summary)[0])
         auto_buy_price = round(price / DOLLAR_RATE, 2)  # convert into dollars
 
-        return f"{auto_buy_price}$"
+        return f"{auto_buy_price}"
 
     else:
         pattern = re.compile(r"[0-9]+")
         price = float(int(pattern.findall(buy_order_summary)[0]))
         auto_buy_price = round(price / DOLLAR_RATE, 2)
 
-        return f"{auto_buy_price}$"
+        return f"{auto_buy_price}"

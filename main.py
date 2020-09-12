@@ -28,7 +28,7 @@ def get_content(html):
     for item in items:
         container.append({
             "name": item.find("span", class_="market_listing_item_name").get_text(strip=True),
-            "price": pattern.findall(item.find("span", class_="market_table_value normal_price").get_text(strip=True).replace(',', ''))[0],
+            "price": str(pattern.findall(item.find("span", class_="market_table_value normal_price").get_text(strip=True).replace(',', ''))[0]),
             "url": str(item.get("href")),
             "auto buy price": get_buy_order_summary(str(item.get("href")))
         })
@@ -39,10 +39,10 @@ def get_content(html):
 def save_into_csv(list_of_items):
     with open(f"{name_for_csv}.csv", "w", newline="") as file:
         writer = csv.writer(file, delimiter=";")
-        writer.writerow(["Name", "Price", "Url", "Auto buy price"])
+        writer.writerow(["Name", "Price in $", "Url", "Auto buy price in $", "Profit"])
         # if not any(i in item["name"] for i in not_needed_items):
         for item in list_of_items:
-            writer.writerow([item["name"], item["price"], item["url"], item["auto buy price"]])
+            writer.writerow([item["name"], item["price"] + "$", item["url"], item["auto buy price"] + "$", str(round((float(item['price']) / float(item["auto buy price"]) - 1) * 100, 2)) + "%"])  # float(item["auto buy price"] / float(item['price']))
         return
 
 
@@ -60,33 +60,36 @@ def get_all_pages(html_page):
 
 
 def parse(from_page=1, list_of_items=None):  # from_page=1, last page=100
+    global items_from_all_pages
+    try:
+        items_from_all_pages = []
+        if list_of_items is not None:
+            items_from_all_pages.extend(list_of_items)
 
-    items_from_all_pages = []
-    if list_of_items is not None:
-        items_from_all_pages.extend(list_of_items)
+        html_page = get_html(URL.format(1))
+        if html_page.status_code == 200:
+            last_page = int(get_all_pages(html_page.text)) // 10 + 1
+        else:
+            print("""Try later
+            """)
+            return
 
-    html_page = get_html(URL.format(1))
-    if html_page.status_code == 200:
-        last_page = int(get_all_pages(html_page.text)) // 10 + 1
-    else:
-        print("""Try later
-        """)
+        for i in range(from_page, last_page + 1):
+            try:
+                html = get_html(URL.format(i))
+                if html.status_code == 200:
+                    print(f"page {i} of {last_page} is processing...")
+                    items_from_all_pages.extend(get_content(html.text))
+
+            except TypeError:
+                time.sleep(300)
+                return parse(from_page=i, list_of_items=items_from_all_pages)
+
+        save_into_csv(items_from_all_pages)
         return
-
-    for i in range(from_page, last_page + 1):
-        try:
-            html = get_html(URL.format(i))
-            if html.status_code == 200:
-                print(f"page {i} of {last_page} is processing...")
-                items_from_all_pages.extend(get_content(html.text))
-
-        except Exception:
-
-            time.sleep(300)
-            return parse(from_page=i, list_of_items=items_from_all_pages)
-
-    save_into_csv(items_from_all_pages)
-    return
+    except KeyboardInterrupt:
+        save_into_csv(items_from_all_pages)
+        return
 
 
 parse()
