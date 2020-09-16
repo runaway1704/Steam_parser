@@ -68,26 +68,24 @@ def get_all_items_from_all_pages(html_page):
         return last_page[-1]
 
 
-def parse(from_page=1, list_of_items=None):
+html_page = requests.get(URL.format(1))
+LAST_PAGE = int(get_all_items_from_all_pages(html_page.text)) // 50 + 1
+APP_ID = get_app_id(URL)
+PARAMS = get_params(URL)
+
+
+def parse(from_page=1, list_of_items=None, last_page=1):
     global items_from_all_pages
     try:
         items_from_all_pages = []
         if list_of_items is not None:
             items_from_all_pages.extend(list_of_items)
-        html_page = requests.get(URL.format(1))
-        if html_page.status_code == 200:
-            last_page = int(get_all_items_from_all_pages(html_page.text)) // 100 + 1
-        else:
-            print("Try later")
-            return
-        app_id = get_app_id(URL)
-        params = get_params(URL)
         for i in range(from_page, last_page + 1):
             try:
-                start = i * 100 - 100
+                start = i * 50 - 50
                 response = requests.get(URL.format(i))
                 if response.status_code == 200:
-                    important_url = f"https://steamcommunity.com/market/search/render/?query=&start={start}&count=100&search_descriptions=0&sort_column=popular&sort_dir=desc{app_id}{params}"
+                    important_url = f"https://steamcommunity.com/market/search/render/?query=&start={start}&count=50&search_descriptions=0&sort_column=popular&sort_dir=desc{APP_ID}{PARAMS}"
                     res = requests.get(important_url)
                     if res.status_code == 200:
                         print(f"Page {i} of {last_page} is processing...")
@@ -106,7 +104,7 @@ def parse(from_page=1, list_of_items=None):
         return
 
 
-parse(from_page=FROM_PAGE)
+parse(from_page=FROM_PAGE, last_page=LAST_PAGE)
 
 # for item in items:
 #     if not any(i in item["name"] for i in not_needed_items):
