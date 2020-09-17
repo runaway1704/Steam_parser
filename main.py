@@ -94,12 +94,14 @@ def parse(from_page=1, list_of_items=None, last_page=1):
                         time.sleep(30)
                         return parse(from_page=i, list_of_items=items_from_all_pages)
             except Exception:
-                # time.sleep(60)
-                save_into_csv(items_from_all_pages)
-                return
+                time.sleep(60)
+                return parse(from_page=i, last_page=LAST_PAGE)
         save_into_csv(items_from_all_pages)
         return
     except KeyboardInterrupt:
+        save_into_csv(items_from_all_pages)
+        return
+    except Exception:
         save_into_csv(items_from_all_pages)
         return
 
