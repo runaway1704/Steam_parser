@@ -34,7 +34,9 @@ def get_content(html):
         container.append({
             "name": item.find("span", class_="market_listing_item_name").get_text(strip=True),
             "price": str(pattern.findall(
-                item.find("span", class_="market_table_value normal_price").get_text(strip=True).replace(',', ''))[0]),
+                item.find("span", class_="market_table_value normal_price").get_text(strip=True).replace(',',
+                                                                                                         '').replace(
+                    " ", ""))[0]),
             "url": str(item.get("href")),
             "auto buy price": get_buy_order_summary(str(item.get("href")))
         })
