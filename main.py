@@ -5,7 +5,6 @@ from bs4 import BeautifulSoup
 from summaries import get_buy_order_summary, get_app_id, get_params
 from const import HEADERS, URL, FROM_PAGE
 import csv
-import traceback
 
 if not FROM_PAGE:
     FROM_PAGE = 1
@@ -47,12 +46,20 @@ def save_into_csv(list_of_items):
     with open(f"{name_for_csv}.csv", "w", newline="", encoding='utf-8') as file:
         writer = csv.writer(file, delimiter=";")
         writer.writerow(["Name", "Price in $", "Url", "Auto buy price in $", "Profit"])
-        # if not any(i in item["name"] for i in not_needed_items):
         for item in list_of_items:
-            writer.writerow([item["name"], item["price"] + "$", item["url"], item["auto buy price"] + "$", str(
-                round((float(item['price']) / float(item["auto buy price"]) - 1) * 100,
-                      2)) + "%"])  # float(item["auto buy price"] / float(item['price']))
+            item["profit"] = round((float(item['price']) / float(item["auto buy price"]) - 1) * 100, 2)
+        items = sorted(list_of_items, key=lambda b: b['profit'], reverse=True)
+        for i in items:
+            # if not any(k in i["name"] for k in not_needed_items):
+            writer.writerow(
+                [i["name"], i["price"] + "$", i["url"], str(i["auto buy price"]) + "$", str(i['profit']) + "%"]
+            )
         return
+        # for item in list_of_items:
+        #     writer.writerow([item["name"], item["price"] + "$", item["url"], item["auto buy price"] + "$", str(
+        #         round((float(item['price']) / float(item["auto buy price"]) - 1) * 100,
+        #               2)) + "%"])  # float(item["auto buy price"] / float(item['price']))
+        # return
 
 
 def get_all_items_from_all_pages(html_page):
@@ -68,8 +75,9 @@ def get_all_items_from_all_pages(html_page):
         return last_page[-1]
 
 
+count = 50
 html_page = requests.get(URL.format(1))
-LAST_PAGE = int(get_all_items_from_all_pages(html_page.text)) // 50 + 1
+LAST_PAGE = int(get_all_items_from_all_pages(html_page.text)) // count + 1
 APP_ID = get_app_id(URL)
 PARAMS = get_params(URL)
 
@@ -82,9 +90,9 @@ def parse(from_page=1, list_of_items=None, last_page=1):
             items_from_all_pages.extend(list_of_items)
         for i in range(from_page, last_page + 1):
             try:
-                start = i * 50 - 50
+                start = i * count - count
                 # response = requests.get(URL.format(i))
-                important_url = f"https://steamcommunity.com/market/search/render/?query=&start={start}&count=50&search_descriptions=0&sort_column=popular&sort_dir=desc{APP_ID}{PARAMS}"
+                important_url = f"https://steamcommunity.com/market/search/render/?query=&start={start}&count={count}&search_descriptions=0&sort_column=popular&sort_dir=desc{APP_ID}{PARAMS}"
                 res = requests.get(important_url)
                 if res.status_code == 200:
                     print(f"Page {i} of {last_page} is processing...")
@@ -94,7 +102,6 @@ def parse(from_page=1, list_of_items=None, last_page=1):
                     time.sleep(30)
                     return parse(from_page=i, list_of_items=items_from_all_pages)
             except Exception:
-                print(traceback.format_exc())
                 time.sleep(60)
                 return parse(from_page=i, last_page=LAST_PAGE, list_of_items=items_from_all_pages)
     except KeyboardInterrupt:
