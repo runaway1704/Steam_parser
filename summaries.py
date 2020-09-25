@@ -33,9 +33,14 @@ def get_buy_order_summary(url):
                         "country=UA"
                         "&language=russian"
                         "&currency=18"
-                        f"&item_nameid={name_id}&two_factor=0").json()
+                        f"&item_nameid={name_id}&two_factor=0")
 
-    buy_order_summary = data["buy_order_summary"]  # [110:-7]  # string with auto buy price data
+    data = data.json()
+    try:
+        buy_order_summary = data["buy_order_summary"]  # [110:-7]  # string with auto buy price data
+    except:
+        time.sleep(10)
+        return get_buy_order_summary(url)
     if "," in buy_order_summary:
         pattern = re.compile(r'[0-9]+\.[0-9]+')
         buy_order_summary = buy_order_summary.replace(",", ".").replace(" ", "")
@@ -45,7 +50,7 @@ def get_buy_order_summary(url):
 
     else:
         pattern = re.compile(r"[0-9]+")
-        price = float(int(pattern.findall(buy_order_summary)[0]))
+        price = float(int(pattern.findall(buy_order_summary.replace(" ", ""))[0]))
         auto_buy_price = round(price / DOLLAR_RATE, 2)
         return f"{auto_buy_price}"
 

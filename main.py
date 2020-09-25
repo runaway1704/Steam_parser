@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from summaries import get_buy_order_summary, get_app_id, get_params
 from const import HEADERS, URL, FROM_PAGE
 import csv
+import traceback
 
 if not FROM_PAGE:
     FROM_PAGE = 1
@@ -15,7 +16,6 @@ if not URL.endswith("#p{}_popular_desc"):
     URL += "#p{}_popular_desc"
 
 name_for_csv = time.strftime("%d-%m-%Y %Hh %M minutes")
-now_time = time.time()
 
 
 def get_html(path):
@@ -83,27 +83,28 @@ def parse(from_page=1, list_of_items=None, last_page=1):
         for i in range(from_page, last_page + 1):
             try:
                 start = i * 50 - 50
-                response = requests.get(URL.format(i))
-                if response.status_code == 200:
-                    important_url = f"https://steamcommunity.com/market/search/render/?query=&start={start}&count=50&search_descriptions=0&sort_column=popular&sort_dir=desc{APP_ID}{PARAMS}"
-                    res = requests.get(important_url)
-                    if res.status_code == 200:
-                        print(f"Page {i} of {last_page} is processing...")
-                        items_from_all_pages.extend(get_content(res.json()["results_html"]))
-                    else:
-                        time.sleep(30)
-                        return parse(from_page=i, list_of_items=items_from_all_pages)
+                # response = requests.get(URL.format(i))
+                important_url = f"https://steamcommunity.com/market/search/render/?query=&start={start}&count=50&search_descriptions=0&sort_column=popular&sort_dir=desc{APP_ID}{PARAMS}"
+                res = requests.get(important_url)
+                if res.status_code == 200:
+                    print(f"Page {i} of {last_page} is processing...")
+                    items_from_all_pages.extend(get_content(res.json()["results_html"]))
+                    time.sleep(30)  # 30
+                else:
+                    time.sleep(30)
+                    return parse(from_page=i, list_of_items=items_from_all_pages)
             except Exception:
+                print(traceback.format_exc())
                 time.sleep(60)
-                return parse(from_page=i, last_page=LAST_PAGE)
-        save_into_csv(items_from_all_pages)
-        return
+                return parse(from_page=i, last_page=LAST_PAGE, list_of_items=items_from_all_pages)
     except KeyboardInterrupt:
         save_into_csv(items_from_all_pages)
         return
     except Exception:
         save_into_csv(items_from_all_pages)
         return
+    save_into_csv(items_from_all_pages)
+    return
 
 
 parse(from_page=FROM_PAGE, last_page=LAST_PAGE)
